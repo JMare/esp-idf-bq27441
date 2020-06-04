@@ -672,7 +672,7 @@ bool writeExtendedData(uint8_t classID, uint8_t offset, uint8_t * data, uint8_t 
 	uint8_t newCsum = computeBlockChecksum(); // Compute the new checksum
 	writeBlockChecksum(newCsum);
 
-	if (!_userConfigControl) exitConfig(false);
+	if (!_userConfigControl) exitConfig(true);
 	
 	return true;
 }
