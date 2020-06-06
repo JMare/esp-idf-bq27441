@@ -20,8 +20,10 @@ Arduino Uno (any 'duino should do)
 
 static const char* TAG = "BQ27441";
 
+// Arduino constrain macro
 #define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
 
+// Initializes I2C and verifies communication with the BQ27441.
 bool begin(void)
 {
 	uint16_t deviceID = 0;
@@ -684,13 +686,10 @@ bool writeExtendedData(uint8_t classID, uint8_t offset, uint8_t * data, uint8_t 
 // Read a specified number of bytes over I2C at a given subAddress
 int16_t i2cReadBytes(uint8_t subAddress, uint8_t * dest, uint8_t count)
 {
-  i2c_cmd_handle_t cmd1 = i2c_cmd_link_create();
-  i2c_master_start(cmd1);
-  i2c_master_write_byte(cmd1, (BQ27441_I2C_ADDRESS << 1) | I2C_MASTER_WRITE, ACK_CHECK_EN);
-  i2c_master_write_byte(cmd1, subAddress, ACK_CHECK_EN);
-  i2c_master_stop(cmd1);
-  //vTaskSuspendAll();
   i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+  i2c_master_start(cmd);
+  i2c_master_write_byte(cmd, (BQ27441_I2C_ADDRESS << 1) | I2C_MASTER_WRITE, ACK_CHECK_EN);
+  i2c_master_write_byte(cmd, subAddress, ACK_CHECK_EN);
   i2c_master_start(cmd);
   i2c_master_write_byte(cmd, (BQ27441_I2C_ADDRESS << 1) | I2C_MASTER_READ, ACK_CHECK_EN);
   if (count > 1) {
@@ -699,15 +698,9 @@ int16_t i2cReadBytes(uint8_t subAddress, uint8_t * dest, uint8_t count)
   i2c_master_read_byte(cmd, dest + count - 1, NACK_VAL);
   i2c_master_stop(cmd);
 
-  esp_err_t ret1 = i2c_master_cmd_begin(0, cmd1, 200 / portTICK_RATE_MS);
   esp_err_t ret = i2c_master_cmd_begin(0, cmd, 200 / portTICK_RATE_MS);
-  i2c_cmd_link_delete(cmd1);
   i2c_cmd_link_delete(cmd);
 
-  //critical section
-  //xTaskResumeAll();
-
-  ESP_ERROR_CHECK_WITHOUT_ABORT(ret);
   if(ret == ESP_OK)
     return true;
   else
@@ -717,17 +710,20 @@ int16_t i2cReadBytes(uint8_t subAddress, uint8_t * dest, uint8_t count)
 // Write a specified number of bytes over I2C to a given subAddress
 uint16_t i2cWriteBytes(uint8_t subAddress, uint8_t * src, uint8_t count)
 {
-  i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-  i2c_master_start(cmd);
-  i2c_master_write_byte(cmd, (BQ27441_I2C_ADDRESS << 1) | I2C_MASTER_WRITE, ACK_CHECK_EN);
-  i2c_master_write_byte(cmd, subAddress, ACK_CHECK_EN);
-  for(int i = 0; i < count-1; i++)
+  // We write data one byte at a time as is required for over 100khz.
+  // 66us idle time is required between commands for 100-400khz
+  // this seems to be built in and there are no communication problems
+  // if needed in future could use eta_delay_us to busy wait for 66us
+  for(int i = 0; i < count; i++)
   {
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, (BQ27441_I2C_ADDRESS << 1) | I2C_MASTER_WRITE, ACK_CHECK_EN);
+    i2c_master_write_byte(cmd, subAddress, ACK_CHECK_EN);
     i2c_master_write_byte(cmd, src[i], ACK_CHECK_EN);
+    i2c_master_stop(cmd);
+    esp_err_t ret = i2c_master_cmd_begin(0, cmd, 1000 / portTICK_RATE_MS);
+    i2c_cmd_link_delete(cmd);
   }
-  i2c_master_write_byte(cmd, src[count-1], ACK_CHECK_DIS);
-  i2c_master_stop(cmd);
-  esp_err_t ret = i2c_master_cmd_begin(0, cmd, 1000 / portTICK_RATE_MS);
-  i2c_cmd_link_delete(cmd);
   return true;
 }

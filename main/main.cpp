@@ -8,6 +8,16 @@
 
 static const char* TAG = "MAIN";
 
+#define I2C_SCL_IO				22	//19               /*!< gpio number for I2C master clock */
+#define I2C_SDA_IO				21	//18               /*!< gpio number for I2C master data  */
+#define I2C_FREQ_HZ				400000           /*!< I2C master clock frequency */
+#define I2C_PORT_NUM			I2C_NUM_0        /*!< I2C port number for master dev */
+#define I2C_TX_BUF_DISABLE  	0                /*!< I2C master do not need buffer */
+#define I2C_RX_BUF_DISABLE  	0                /*!< I2C master do not need buffer */
+#define ACK_CHECK_EN                       0x1              /*!< I2C master will check ack from slave*/
+#define ACK_CHECK_DIS                      0x0              /*!< I2C master will not check ack from slave */
+
+#define BQ27441_I2C_ADDRESS 0x55
 
 extern "C" {
   void app_main(void);
@@ -15,27 +25,29 @@ extern "C" {
 
 static esp_err_t i2c_master_init(void)
 {
-  int i2c_master_port = 0;
   i2c_config_t conf = {};
   conf.mode = I2C_MODE_MASTER;
-  conf.sda_io_num = (gpio_num_t)21;
+  conf.sda_io_num = (gpio_num_t)I2C_SDA_IO;
   conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
-  conf.scl_io_num = (gpio_num_t)22;
+  conf.scl_io_num = (gpio_num_t)I2C_SCL_IO;
   conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
-  conf.master.clk_speed = 10*1000; //100khz
-  i2c_param_config(i2c_master_port, &conf);
-  return i2c_driver_install(i2c_master_port, conf.mode, I2C_MASTER_RX_BUF_DISABLE, I2C_MASTER_TX_BUF_DISABLE, 0);
+  conf.master.clk_speed = I2C_FREQ_HZ;
+  i2c_param_config(I2C_PORT_NUM, &conf);
+  return i2c_driver_install(I2C_PORT_NUM, conf.mode, I2C_RX_BUF_DISABLE, I2C_TX_BUF_DISABLE, 0);
 }
-
 
 void app_main(void)
 {
   ESP_LOGI(TAG,"MAIN ENTRY");
 
   i2c_master_init();
+  i2c_set_timeout(I2C_PORT_NUM,0xFFFFF);
+
+  //xTaskCreatePinnedToCore(task_fuel_gauge, "fuel_gauge", 2048, (void* ) 0, 20, NULL,1);
 
   bool ret = begin();
-  //uint16_t cap = capacity(REMAIN);
+
+  uint16_t cap = capacity(REMAIN);
 
   setCapacity(2000);
   ESP_LOGI(TAG,"%i",ret);
