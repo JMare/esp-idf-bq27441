@@ -24,7 +24,7 @@ Arduino Uno (any 'duino should do)
 ///////////////////////
 // Standard Commands //
 ///////////////////////
-// The fuel gauge uses a series of 2-byte standard commands to enable system 
+// The fuel gauge uses a series of 2-byte standard commands to enable system
 // reading and writing of battery information. Each command has an associated
 // sequential command-code pair.
 #define BQ27441_COMMAND_CONTROL			0x00 // Control()
@@ -52,9 +52,9 @@ Arduino Uno (any 'duino should do)
 // Control Sub-commands //
 //////////////////////////
 // Issuing a Control() command requires a subsequent 2-byte subcommand. These
-// additional bytes specify the particular control function desired. The 
+// additional bytes specify the particular control function desired. The
 // Control() command allows the system to control specific features of the fuel
-// gauge during normal operation and additional features when the device is in 
+// gauge during normal operation and additional features when the device is in
 // different access modes.
 #define BQ27441_CONTROL_STATUS			0x00
 #define BQ27441_CONTROL_DEVICE_TYPE		0x01
@@ -80,7 +80,7 @@ Arduino Uno (any 'duino should do)
 // Control Status Word - Bit Definitions //
 ///////////////////////////////////////////
 // Bit positions for the 16-bit data of CONTROL_STATUS.
-// CONTROL_STATUS instructs the fuel gauge to return status information to 
+// CONTROL_STATUS instructs the fuel gauge to return status information to
 // Control() addresses 0x00 and 0x01. The read-only status word contains status
 // bits that are set or cleared either automatically as conditions warrant or
 // through using specified subcommands.

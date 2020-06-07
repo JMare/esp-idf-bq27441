@@ -20,47 +20,47 @@ static const char* TAG = "MAIN";
 #define BQ27441_I2C_ADDRESS 0x55
 
 extern "C" {
-  void app_main(void);
+    void app_main(void);
 };
 
 static esp_err_t i2c_master_init(void)
 {
-  i2c_config_t conf = {};
-  conf.mode = I2C_MODE_MASTER;
-  conf.sda_io_num = (gpio_num_t)I2C_SDA_IO;
-  conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
-  conf.scl_io_num = (gpio_num_t)I2C_SCL_IO;
-  conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
-  conf.master.clk_speed = I2C_FREQ_HZ;
-  i2c_param_config(I2C_PORT_NUM, &conf);
-  return i2c_driver_install(I2C_PORT_NUM, conf.mode, I2C_RX_BUF_DISABLE, I2C_TX_BUF_DISABLE, 0);
+    i2c_config_t conf = {};
+    conf.mode = I2C_MODE_MASTER;
+    conf.sda_io_num = (gpio_num_t)I2C_SDA_IO;
+    conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
+    conf.scl_io_num = (gpio_num_t)I2C_SCL_IO;
+    conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
+    conf.master.clk_speed = I2C_FREQ_HZ;
+    i2c_param_config(I2C_PORT_NUM, &conf);
+    return i2c_driver_install(I2C_PORT_NUM, conf.mode, I2C_RX_BUF_DISABLE, I2C_TX_BUF_DISABLE, 0);
 }
 
 void app_main(void)
 {
-  ESP_LOGI(TAG,"MAIN ENTRY");
+    ESP_LOGI(TAG,"MAIN ENTRY");
 
-  i2c_master_init();
-  i2c_set_timeout(I2C_PORT_NUM,0xFFFFF);
+    i2c_master_init();
+    i2c_set_timeout(I2C_PORT_NUM,0xFFFFF);
 
-  //xTaskCreatePinnedToCore(task_fuel_gauge, "fuel_gauge", 2048, (void* ) 0, 20, NULL,1);
+    //xTaskCreatePinnedToCore(task_fuel_gauge, "fuel_gauge", 2048, (void* ) 0, 20, NULL,1);
 
-  begin(I2C_PORT_NUM);
+    bq27441Begin(I2C_PORT_NUM);
 
-  setCapacity(2000);
+    bq27441SetCapacity(2000);
 
-  while(1)
-  {
-    vTaskDelay(1000/portTICK_PERIOD_MS);
-    unsigned int _soc = soc(FILTERED);  // Read state-of-charge (%)
-    unsigned int _volts = voltage(); // Read battery voltage (mV)
-    int _current = current(AVG); // Read average current (mA)
-    unsigned int _fullCapacity = capacity(FULL); // Read full capacity (mAh)
-    unsigned int _capacity = capacity(REMAIN); // Read remaining capacity (mAh)
-    int _power = power(); // Read average power draw (mW)
-    int _health = soh(PERCENT); // Read state-of-health (%)
+    while(1)
+    {
+        vTaskDelay(1000/portTICK_PERIOD_MS);
+        unsigned int _soc = bq27441Soc(FILTERED);  // Read state-of-charge (%)
+        unsigned int _volts = bq27441Voltage(); // Read battery voltage (mV)
+        int _current = bq27441Current(AVG); // Read average current (mA)
+        unsigned int _fullCapacity = bq27441Capacity(FULL); // Read full capacity (mAh)
+        unsigned int _capacity = bq27441Capacity(REMAIN); // Read remaining capacity (mAh)
+        int _power = bq27441Power(); // Read average power draw (mW)
+        int _health = bq27441Soh(PERCENT); // Read state-of-health (%)
 
-    ESP_LOGI(TAG,"Battery SOC %i%% VOLTS %imV CURRENT %imA CAPACITY %i / %imAh",_soc,_volts,_current,_capacity,_fullCapacity);
-    ESP_LOGI(TAG,"Battery HEALTH %i%% POWER %imW",_health,_power);
-  }
+        ESP_LOGI(TAG,"Battery SOC %i%% VOLTS %imV CURRENT %imA CAPACITY %i / %imAh",_soc,_volts,_current,_capacity,_fullCapacity);
+        ESP_LOGI(TAG,"Battery HEALTH %i%% POWER %imW",_health,_power);
+    }
 }

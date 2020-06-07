@@ -36,56 +36,62 @@ extern "C" {
 #define I2C_MASTER_RX_BUF_DISABLE 0                           /*!< I2C master doesn't need buffer */
 
 // Parameters for the current() function, to specify which current to read
-typedef enum {
-	AVG,  // Average Current (DEFAULT)
-	STBY, // Standby Current
-	MAX   // Max Current
+typedef enum
+{
+    AVG,  // Average Current (DEFAULT)
+    STBY, // Standby Current
+    MAX   // Max Current
 } current_measure;
 
 // Parameters for the capacity() function, to specify which capacity to read
-typedef enum {
-	REMAIN,     // Remaining Capacity (DEFAULT)
-	FULL,       // Full Capacity
-	AVAIL,      // Available Capacity
-	AVAIL_FULL, // Full Available Capacity
-	REMAIN_F,   // Remaining Capacity Filtered
-	REMAIN_UF,  // Remaining Capacity Unfiltered
-	FULL_F,     // Full Capacity Filtered
-	FULL_UF,    // Full Capacity Unfiltered
-	DESIGN      // Design Capacity
+typedef enum
+{
+    REMAIN,     // Remaining Capacity (DEFAULT)
+    FULL,       // Full Capacity
+    AVAIL,      // Available Capacity
+    AVAIL_FULL, // Full Available Capacity
+    REMAIN_F,   // Remaining Capacity Filtered
+    REMAIN_UF,  // Remaining Capacity Unfiltered
+    FULL_F,     // Full Capacity Filtered
+    FULL_UF,    // Full Capacity Unfiltered
+    DESIGN      // Design Capacity
 } capacity_measure;
 
 // Parameters for the soc() function
-typedef enum {
-	FILTERED,  // State of Charge Filtered (DEFAULT)
-	UNFILTERED // State of Charge Unfiltered
+typedef enum
+{
+    FILTERED,  // State of Charge Filtered (DEFAULT)
+    UNFILTERED // State of Charge Unfiltered
 } soc_measure;
 
 // Parameters for the soh() function
-typedef enum {
-	PERCENT,  // State of Health Percentage (DEFAULT)
-	SOH_STAT  // State of Health Status Bits
+typedef enum
+{
+    PERCENT,  // State of Health Percentage (DEFAULT)
+    SOH_STAT  // State of Health Status Bits
 } soh_measure;
 
 // Parameters for the temperature() function
-typedef enum {
-	BATTERY,      // Battery Temperature (DEFAULT)
-	INTERNAL_TEMP // Internal IC Temperature
+typedef enum
+{
+    BATTERY,      // Battery Temperature (DEFAULT)
+    INTERNAL_TEMP // Internal IC Temperature
 } temp_measure;
 
 // Parameters for the setGPOUTFunction() funciton
-typedef enum {
-	SOC_INT, // Set GPOUT to SOC_INT functionality
-	BAT_LOW  // Set GPOUT to BAT_LOW functionality
+typedef enum
+{
+    SOC_INT, // Set GPOUT to SOC_INT functionality
+    BAT_LOW  // Set GPOUT to BAT_LOW functionality
 } gpout_function;
 
-	/**
-  Initializes I2C and verifies communication with the BQ27441.
+/**
+Initializes I2C and verifies communication with the BQ27441.
 Must be called before using any other functions.
 
 @return true if communication was successful.
 */
-bool begin(i2c_port_t port_num);
+bool bq27441Begin(i2c_port_t port_num);
 
 /**
   Configures the design capacity of the connected battery.
@@ -93,7 +99,7 @@ bool begin(i2c_port_t port_num);
 @param capacity of battery (unsigned 16-bit value)
 @return true if capacity successfully set.
 */
-bool setCapacity(uint16_t capacity);
+bool bq27441SetCapacity(uint16_t capacity);
 
 /**
   Configures the design energy of the connected battery.
@@ -101,7 +107,7 @@ bool setCapacity(uint16_t capacity);
 @param energy of battery (unsigned 16-bit value)
 @return true if energy successfully set.
 */
-bool setDesignEnergy(uint16_t energy);
+bool bq27441SetDesignEnergy(uint16_t energy);
 
 /**
   Configures terminate voltage (lowest operational voltage of battery powered circuit)
@@ -109,9 +115,9 @@ bool setDesignEnergy(uint16_t energy);
 @param voltage of battery (unsigned 16-bit value)
 @return true if energy successfully set.
 */
-bool setTerminateVoltage(uint16_t voltage);
+bool bq27441SetTerminateVoltage(uint16_t voltage);
 
-bool setTaperRate(uint16_t rate);
+bool bq27441SetTaperRate(uint16_t rate);
 
 /////////////////////////////
 // Battery Characteristics //
@@ -121,7 +127,7 @@ bool setTaperRate(uint16_t rate);
 
 @return battery voltage in mV
 */
-uint16_t voltage(void);
+uint16_t bq27441Voltage(void);
 
 /**
   Reads and returns the specified current measurement
@@ -129,7 +135,7 @@ uint16_t voltage(void);
 @param current_measure enum specifying current value to be read
 @return specified current measurement in mA. >0 indicates charging.
 */
-int16_t current(current_measure type);
+int16_t bq27441Current(current_measure type);
 
 /**
   Reads and returns the specified capacity measurement
@@ -137,14 +143,14 @@ int16_t current(current_measure type);
 @param capacity_measure enum specifying capacity value to be read
 @return specified capacity measurement in mAh.
 */
-uint16_t capacity(capacity_measure type);
+uint16_t bq27441Capacity(capacity_measure type);
 
 /**
   Reads and returns measured average power
 
 @return average power in mAh. >0 indicates charging.
 */
-int16_t power(void);
+int16_t bq27441Power(void);
 
 /**
   Reads and returns specified state of charge measurement
@@ -152,7 +158,7 @@ int16_t power(void);
 @param soc_measure enum specifying filtered or unfiltered measurement
 @return specified state of charge measurement in %
 */
-uint16_t soc(soc_measure type);
+uint16_t bq27441Soc(soc_measure type);
 
 /**
   Reads and returns specified state of health measurement
@@ -160,7 +166,7 @@ uint16_t soc(soc_measure type);
 @param soh_measure enum specifying filtered or unfiltered measurement
 @return specified state of health measurement in %, or status bits
 */
-uint8_t soh(soh_measure type);
+uint8_t bq27441Soh(soh_measure type);
 
 /**
   Reads and returns specified temperature measurement
@@ -168,9 +174,9 @@ uint8_t soh(soh_measure type);
 @param temp_measure enum specifying internal or battery measurement
 @return specified temperature measurement in degrees C
 */
-uint16_t temperature(temp_measure type);
+uint16_t bq27441Temperature(temp_measure type);
 
-////////////////////////////	
+////////////////////////////
 // GPOUT Control Commands //
 ////////////////////////////
 /**
@@ -178,7 +184,7 @@ uint16_t temperature(temp_measure type);
 
 @return true if active-high, false if active-low
 */
-bool GPOUTPolarity(void);
+bool bq27441GPOUTPolarity(void);
 
 /**
   Set GPOUT polarity to active-high or active-low
@@ -186,14 +192,14 @@ bool GPOUTPolarity(void);
 @param activeHigh is true if active-high, false if active-low
 @return true on success
 */
-bool setGPOUTPolarity(bool activeHigh);
+bool bq27441SetGPOUTPolarity(bool activeHigh);
 
 /**
   Get GPOUT function (BAT_LOW or SOC_INT)
 
 @return true if BAT_LOW or false if SOC_INT
 */
-bool GPOUTFunction(void);
+bool bq27441GPOUTFunction(void);
 
 /**
   Set GPOUT function to BAT_LOW or SOC_INT
@@ -201,21 +207,21 @@ bool GPOUTFunction(void);
 @param function should be either BAT_LOW or SOC_INT
 @return true on success
 */
-bool setGPOUTFunction(gpout_function function);
+bool bq27441SetGPOUTFunction(gpout_function function);
 
 /**
   Get SOC1_Set Threshold - threshold to set the alert flag
 
 @return state of charge value between 0 and 100%
 */
-uint8_t SOC1SetThreshold(void);
+uint8_t bq27441SOC1SetThreshold(void);
 
 /**
   Get SOC1_Clear Threshold - threshold to clear the alert flag
 
 @return state of charge value between 0 and 100%
 */
-uint8_t SOC1ClearThreshold(void);
+uint8_t bq27441SOC1ClearThreshold(void);
 
 /**
   Set the SOC1 set and clear thresholds to a percentage
@@ -223,21 +229,21 @@ uint8_t SOC1ClearThreshold(void);
 @param set and clear percentages between 0 and 100. clear > set.
 @return true on success
 */
-bool setSOC1Thresholds(uint8_t set, uint8_t clear);
+bool bq27441SetSOC1Thresholds(uint8_t set, uint8_t clear);
 
 /**
   Get SOCF_Set Threshold - threshold to set the alert flag
 
 @return state of charge value between 0 and 100%
 */
-uint8_t SOCFSetThreshold(void);
+uint8_t bq27441SOCFSetThreshold(void);
 
 /**
   Get SOCF_Clear Threshold - threshold to clear the alert flag
 
 @return state of charge value between 0 and 100%
 */
-uint8_t SOCFClearThreshold(void);
+uint8_t bq27441SOCFClearThreshold(void);
 
 /**
   Set the SOCF set and clear thresholds to a percentage
@@ -245,49 +251,49 @@ uint8_t SOCFClearThreshold(void);
 @param set and clear percentages between 0 and 100. clear > set.
 @return true on success
 */
-bool setSOCFThresholds(uint8_t set, uint8_t clear);
+bool bq27441SetSOCFThresholds(uint8_t set, uint8_t clear);
 
 /**
   Check if the SOC1 flag is set in flags()
 
 @return true if flag is set
 */
-bool socFlag(void);
+bool bq27441SocFlag(void);
 
 /**
   Check if the SOCF flag is set in flags()
 
 @return true if flag is set
 */
-bool socfFlag(void);
+bool bq27441SocfFlag(void);
 
 /**
   Check if the ITPOR flag is set in flags()
 
 @return true if flag is set
 */
-bool itporFlag(void);
+bool ibq27441TporFlag(void);
 
 /**
   Check if the FC flag is set in flags()
 
 @return true if flag is set
 */
-bool fcFlag(void);
+bool bq27441FcFlag(void);
 
 /**
   Check if the CHG flag is set in flags()
 
 @return true if flag is set
 */
-bool chgFlag(void);
+bool bq27441ChgFlag(void);
 
 /**
   Check if the DSG flag is set in flags()
 
 @return true if flag is set
 */
-bool dsgFlag(void);
+bool bq27441DsgFlag(void);
 
 
 /**
@@ -295,7 +301,7 @@ bool dsgFlag(void);
 
 @return interval percentage value between 1 and 100
 */
-uint8_t sociDelta(void);
+uint8_t bq27441SociDelta(void);
 
 /**
   Set the SOC_INT interval delta to a value between 1 and 100
@@ -303,14 +309,14 @@ uint8_t sociDelta(void);
 @param interval percentage value between 1 and 100
 @return true on success
 */
-bool setSOCIDelta(uint8_t delta);
+bool bq27441SetSOCIDelta(uint8_t delta);
 
 /**
   Pulse the GPOUT pin - must be in SOC_INT mode
 
 @return true on success
 */
-bool pulseGPOUT(void);
+bool bq27441PulseGPOUT(void);
 
 //////////////////////////
 // Control Sub-commands //
@@ -321,17 +327,17 @@ bool pulseGPOUT(void);
 
 @return 16-bit value read from DEVICE_TYPE subcommand
 */
-uint16_t deviceType(void);
+uint16_t bq27441DeviceType(void);
 
 /**
   Enter configuration mode - set userControl if calling from an Arduino
 sketch and you want control over when to exitConfig.
 
-@param userControl is true if the Arduino sketch is handling entering 
+@param userControl is true if the Arduino sketch is handling entering
 and exiting config mode (should be false in library calls).
 @return true on success
 */
-bool enterConfig(bool userControl);
+bool bq27441EnterConfig(bool userControl);
 
 /**
   Exit configuration mode with the option to perform a resimulation
@@ -339,90 +345,90 @@ bool enterConfig(bool userControl);
 @param resim is true if resimulation should be performed after exiting
 @return true on success
 */
-bool exitConfig(bool resim);
+bool bq27441ExitConfig(bool resim);
 
 /**
   Read the flags() command
 
 @return 16-bit representation of flags() command register
 */
-uint16_t flags(void);
+uint16_t bq27441Flags(void);
 
 /**
   Read the CONTROL_STATUS subcommand of control()
 
 @return 16-bit representation of CONTROL_STATUS subcommand
 */
-uint16_t status(void);
+uint16_t bq27441Status(void);
 
 
-  // entering/exiting config
+// entering/exiting config
 /**
   Check if the BQ27441-G1A is sealed or not.
 
 @return true if the chip is sealed
 */
-bool sealed(void);
+bool bq27441Sealed(void);
 
 /**
   Seal the BQ27441-G1A
 
 @return true on success
 */
-bool seal(void);
+bool bq27441Seal(void);
 
 /**
   UNseal the BQ27441-G1A
 
 @return true on success
 */
-bool unseal(void);
+bool bq27441Unseal(void);
 
 /**
   Read the 16-bit opConfig register from extended data
 
 @return opConfig register contents
 */
-uint16_t opConfig(void);
+uint16_t bq27441OpConfig(void);
 
 /**
   Write the 16-bit opConfig register in extended data
 
 @param New 16-bit value for opConfig
 @return true on success
-*/	
-bool writeOpConfig(uint16_t value);
+*/
+bool bq27441WriteOpConfig(uint16_t value);
 
 /**
   Issue a soft-reset to the BQ27441-G1A
 
 @return true on success
-*/	
-bool softReset(void);
+*/
+bool bq27441SoftReset(void);
 
 /**
   Read a 16-bit command word from the BQ27441-G1A
 
 @param subAddress is the command to be read from
 @return 16-bit value of the command's contents
-*/	
-uint16_t readWord(uint16_t subAddress);
+*/
+uint16_t bq27441ReadWord(uint16_t subAddress);
 
 /**
   Read a 16-bit subcommand() from the BQ27441-G1A's control()
 
 @param function is the subcommand of control() to be read
 @return 16-bit value of the subcommand's contents
-*/	
-uint16_t readControlWord(uint16_t function);
+*/
+uint16_t bq27441ReadControlWord(uint16_t function);
 
 /**
   Execute a subcommand() from the BQ27441-G1A's control()
 
 @param function is the subcommand of control() to be executed
 @return true on success
-*/	
-bool executeControlWord(uint16_t function);
+*/
+bool bq27441ExecuteControlWord(uint16_t function);
 
 ////////////////////////////
 // Extended Data Commands //
@@ -432,7 +438,7 @@ bool executeControlWord(uint16_t function);
 
 @return true on success
 */
-bool blockDataControl(void);
+bool bq27441BlockDataControl(void);
 
 /**
   Issue a DataClass() command to set the data class to be accessed
@@ -440,7 +446,7 @@ bool blockDataControl(void);
 @param id is the id number of the class
 @return true on success
 */
-bool blockDataClass(uint8_t id);
+bool bq27441BlockDataClass(uint8_t id);
 
 /**
   Issue a DataBlock() command to set the data block to be accessed
@@ -448,14 +454,14 @@ bool blockDataClass(uint8_t id);
 @param offset of the data block
 @return true on success
 */
-bool blockDataOffset(uint8_t offset);
+bool bq27441BlockDataOffset(uint8_t offset);
 
 /**
   Read the current checksum using BlockDataCheckSum()
 
 @return true on success
 */
-uint8_t blockDataChecksum(void);
+uint8_t bq27441BlockDataChecksum(void);
 
 /**
   Use BlockData() to read a byte from the loaded extended data
@@ -463,7 +469,7 @@ uint8_t blockDataChecksum(void);
 @param offset of data block byte to be read
 @return true on success
 */
-uint8_t readBlockData(uint8_t offset);
+uint8_t bq27441ReadBlockData(uint8_t offset);
 
 /**
   Use BlockData() to write a byte to an offset of the loaded data
@@ -472,15 +478,15 @@ uint8_t readBlockData(uint8_t offset);
         data is the value to be written
 @return true on success
 */
-bool writeBlockData(uint8_t offset, uint8_t data);
+bool bq27441WriteBlockData(uint8_t offset, uint8_t data);
 
 /**
-  Read all 32 bytes of the loaded extended data and compute a 
+  Read all 32 bytes of the loaded extended data and compute a
 checksum based on the values.
 
 @return 8-bit checksum value calculated based on loaded data
 */
-uint8_t computeBlockChecksum(void);
+uint8_t bq27441ComputeBlockChecksum(void);
 
 /**
   Use the BlockDataCheckSum() command to write a checksum value
@@ -488,7 +494,7 @@ uint8_t computeBlockChecksum(void);
 @param csum is the 8-bit checksum to be written
 @return true on success
 */
-bool writeBlockChecksum(uint8_t csum);
+bool bq27441WriteBlockChecksum(uint8_t csum);
 
 /**
   Read a byte from extended data specifying a class ID and position offset
@@ -497,10 +503,10 @@ bool writeBlockChecksum(uint8_t csum);
         offset is the byte position of the byte to be read
 @return 8-bit value of specified data
 */
-uint8_t readExtendedData(uint8_t classID, uint8_t offset);
+uint8_t bq27441ReadExtendedData(uint8_t classID, uint8_t offset);
 
 /**
-  Write a specified number of bytes to extended data specifying a 
+  Write a specified number of bytes to extended data specifying a
 class ID, position offset.
 
 @param classID is the id of the class to be read from
@@ -509,7 +515,7 @@ class ID, position offset.
       len is the number of bytes to be written
 @return true on success
 */
-bool writeExtendedData(uint8_t classID, uint8_t offset, uint8_t * data, uint8_t len);
+bool bq27441WriteExtendedData(uint8_t classID, uint8_t offset, uint8_t * data, uint8_t len);
 
 /////////////////////////////////
 // I2C Read and Write Routines //
@@ -523,7 +529,7 @@ bool writeExtendedData(uint8_t classID, uint8_t offset, uint8_t * data, uint8_t 
       count is the number of bytes to be read
 @return true on success
 */
-int16_t i2cReadBytes(uint8_t subAddress, uint8_t * dest, uint8_t count);
+int16_t bq27441I2cReadBytes(uint8_t subAddress, uint8_t * dest, uint8_t count);
 
 /**
   Write a specified number of bytes over I2C to a given subAddress
@@ -533,7 +539,7 @@ int16_t i2cReadBytes(uint8_t subAddress, uint8_t * dest, uint8_t count);
       count is the number of bytes to be written
 @return true on success
 */
-uint16_t i2cWriteBytes(uint8_t subAddress, uint8_t * src, uint8_t count);
+uint16_t bq27441I2cWriteBytes(uint8_t subAddress, uint8_t * src, uint8_t count);
 
 #ifdef __cplusplus
 }
