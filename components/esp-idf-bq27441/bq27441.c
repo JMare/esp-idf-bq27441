@@ -20,19 +20,25 @@ Arduino Uno (any 'duino should do)
 
 static const char* TAG = "BQ27441";
 
+i2c_port_t _port_num;
+bool _sealFlag; // Global to identify that IC was previously sealed
+bool _userConfigControl; // Global to identify that user has control over 
+
 // Arduino constrain macro
 #define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
 
 // Initializes I2C and verifies communication with the BQ27441.
-bool begin(void)
+bool begin(i2c_port_t port_num)
 {
+  _port_num = port_num;
 	uint16_t deviceID = 0;
 	deviceID = deviceType(); // Read deviceType from BQ27441
-  ESP_LOGI(TAG,"Device Type %i",deviceID);
 	if (deviceID == BQ27441_DEVICE_ID)
-    {
-      return true; // If device ID is valid, return true
-    }
+  {
+    ESP_LOGI(TAG,"BQ27441 Detected");
+    return true; // If device ID is valid, return true
+  }
+  ESP_LOGE(TAG,"BQ27441 Not Found");
 	return false; // Otherwise return false
 }
 
@@ -543,10 +549,10 @@ bool executeControlWord(uint16_t function)
 	uint8_t subCommandLSB = (function & 0x00FF);
 	uint8_t command[2] = {subCommandLSB, subCommandMSB};
 	uint8_t data[2] = {0, 0};
-	
+
 	if (i2cWriteBytes((uint8_t) 0, command, 2))
 		return true;
-	
+
 	return false;
 }
 
@@ -698,7 +704,7 @@ int16_t i2cReadBytes(uint8_t subAddress, uint8_t * dest, uint8_t count)
   i2c_master_read_byte(cmd, dest + count - 1, NACK_VAL);
   i2c_master_stop(cmd);
 
-  esp_err_t ret = i2c_master_cmd_begin(0, cmd, 200 / portTICK_RATE_MS);
+  esp_err_t ret = i2c_master_cmd_begin(_port_num, cmd, 200 / portTICK_RATE_MS);
   i2c_cmd_link_delete(cmd);
 
   if(ret == ESP_OK)
@@ -722,7 +728,7 @@ uint16_t i2cWriteBytes(uint8_t subAddress, uint8_t * src, uint8_t count)
     i2c_master_write_byte(cmd, subAddress, ACK_CHECK_EN);
     i2c_master_write_byte(cmd, src[i], ACK_CHECK_EN);
     i2c_master_stop(cmd);
-    esp_err_t ret = i2c_master_cmd_begin(0, cmd, 1000 / portTICK_RATE_MS);
+    esp_err_t ret = i2c_master_cmd_begin(_port_num, cmd, 1000 / portTICK_RATE_MS);
     i2c_cmd_link_delete(cmd);
   }
   return true;

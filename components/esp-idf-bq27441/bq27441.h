@@ -85,7 +85,7 @@ Must be called before using any other functions.
 
 @return true if communication was successful.
 */
-bool begin(void);
+bool begin(i2c_port_t port_num);
 
 /**
   Configures the design capacity of the connected battery.
@@ -355,11 +355,8 @@ uint16_t flags(void);
 */
 uint16_t status(void);
 
-uint8_t _deviceAddress;  // Stores the BQ27441-G1A's I2C address
-bool _sealFlag; // Global to identify that IC was previously sealed
-bool _userConfigControl; // Global to identify that user has control over 
-                        // entering/exiting config
 
+  // entering/exiting config
 /**
   Check if the BQ27441-G1A is sealed or not.
 

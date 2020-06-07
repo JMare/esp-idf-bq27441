@@ -45,12 +45,10 @@ void app_main(void)
 
   //xTaskCreatePinnedToCore(task_fuel_gauge, "fuel_gauge", 2048, (void* ) 0, 20, NULL,1);
 
-  bool ret = begin();
-
-  uint16_t cap = capacity(REMAIN);
+  begin(I2C_PORT_NUM);
 
   setCapacity(2000);
-  ESP_LOGI(TAG,"%i",ret);
+
   while(1)
   {
     vTaskDelay(1000/portTICK_PERIOD_MS);
@@ -62,6 +60,7 @@ void app_main(void)
     int _power = power(); // Read average power draw (mW)
     int _health = soh(PERCENT); // Read state-of-health (%)
 
-    ESP_LOGI(TAG,"Battery SOC %i VOLTS %i CURRENT %i CAPACITY %i / %i",_soc,_volts,_current,_capacity,_fullCapacity);
+    ESP_LOGI(TAG,"Battery SOC %i%% VOLTS %imV CURRENT %imA CAPACITY %i / %imAh",_soc,_volts,_current,_capacity,_fullCapacity);
+    ESP_LOGI(TAG,"Battery HEALTH %i%% POWER %imW",_health,_power);
   }
 }
