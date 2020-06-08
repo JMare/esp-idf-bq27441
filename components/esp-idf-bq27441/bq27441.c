@@ -35,10 +35,10 @@ bool bq27441Begin(i2c_port_t port_num)
     deviceID = bq27441DeviceType(); // Read bq27441DeviceType from BQ27441
     if (deviceID == BQ27441_DEVICE_ID)
     {
-        ESP_LOGI(TAG,"BQ27441 Detected");
+        ESP_LOGI(TAG,"BQ27441 Detected - Device ID: 0x%x",deviceID);
         return true; // If device ID is valid, return true
     }
-    ESP_LOGE(TAG,"BQ27441 Not Found");
+    ESP_LOGE(TAG,"BQ27441 Not Found - Device ID: 0x%x",deviceID);
     return false; // Otherwise return false
 }
 
@@ -717,20 +717,22 @@ int16_t bq27441I2cReadBytes(uint8_t subAddress, uint8_t * dest, uint8_t count)
 // Write a specified number of bytes over I2C to a given subAddress
 uint16_t bq27441I2cWriteBytes(uint8_t subAddress, uint8_t * src, uint8_t count)
 {
-    // We write data one byte at a time as is required for over 100khz.
-    // 66us idle time is required between commands for 100-400khz
+    // We write data incrementally
+    // According to the datasheet this is only ok for f_scl up to 100khz
+    // 66us idle time is required between commands
     // this seems to be built in and there are no communication problems
     // if needed in future could use eta_delay_us to busy wait for 66us
+
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, (BQ27441_I2C_ADDRESS << 1) | I2C_MASTER_WRITE, ACK_CHECK_EN);
+    i2c_master_write_byte(cmd, subAddress, ACK_CHECK_EN);
     for(int i = 0; i < count; i++)
     {
-        i2c_cmd_handle_t cmd = i2c_cmd_link_create();
-        i2c_master_start(cmd);
-        i2c_master_write_byte(cmd, (BQ27441_I2C_ADDRESS << 1) | I2C_MASTER_WRITE, ACK_CHECK_EN);
-        i2c_master_write_byte(cmd, subAddress, ACK_CHECK_EN);
         i2c_master_write_byte(cmd, src[i], ACK_CHECK_EN);
-        i2c_master_stop(cmd);
-        esp_err_t ret = i2c_master_cmd_begin(_port_num, cmd, 1000 / portTICK_RATE_MS);
-        i2c_cmd_link_delete(cmd);
     }
+    i2c_master_stop(cmd);
+    esp_err_t ret = i2c_master_cmd_begin(_port_num, cmd, 1000 / portTICK_RATE_MS);
+    i2c_cmd_link_delete(cmd);
     return true;
 }
