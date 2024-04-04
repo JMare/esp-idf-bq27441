@@ -27,6 +27,10 @@ bool _userConfigControl; // Global to identify that user has control over
 // Arduino constrain macro
 #define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
 
+// We may actually want to wait one tick, rather than the 0 this is gonna
+// resolve to.  Making a macro so that it's easy to make that change
+#define vTaskPoll() vTaskDelay(1 / portTICK_PERIOD_MS);
+
 // Initializes I2C and verifies communication with the BQ27441.
 bool bq27441Begin(i2c_port_t port_num)
 {
@@ -414,7 +418,7 @@ bool bq27441EnterConfig(bool userControl)
     {
         int16_t timeout = BQ72441_I2C_TIMEOUT;
         while ((timeout--) && (!(bq27441Flags() & BQ27441_FLAG_CFGUPMODE)))
-            vTaskDelay(1/portTICK_RATE_MS);
+            vTaskPoll();
 
         if (timeout > 0)
             return true;
@@ -439,7 +443,8 @@ bool bq27441ExitConfig(bool resim)
         {
             int16_t timeout = BQ72441_I2C_TIMEOUT;
             while ((timeout--) && ((bq27441Flags() & BQ27441_FLAG_CFGUPMODE)))
-                vTaskDelay(1/portTICK_RATE_MS);
+                vTaskPoll();
+
             if (timeout > 0)
             {
                 if (_sealFlag) bq27441Seal(); // Seal back up if we IC was sealed coming in
@@ -705,7 +710,7 @@ int16_t bq27441I2cReadBytes(uint8_t subAddress, uint8_t * dest, uint8_t count)
     i2c_master_read_byte(cmd, dest + count - 1, NACK_VAL);
     i2c_master_stop(cmd);
 
-    esp_err_t ret = i2c_master_cmd_begin(_port_num, cmd, 200 / portTICK_RATE_MS);
+    esp_err_t ret = i2c_master_cmd_begin(_port_num, cmd, 200 / portTICK_PERIOD_MS);
     i2c_cmd_link_delete(cmd);
 
     if(ret == ESP_OK)
@@ -732,7 +737,7 @@ uint16_t bq27441I2cWriteBytes(uint8_t subAddress, uint8_t * src, uint8_t count)
         i2c_master_write_byte(cmd, src[i], ACK_CHECK_EN);
     }
     i2c_master_stop(cmd);
-    esp_err_t ret = i2c_master_cmd_begin(_port_num, cmd, 1000 / portTICK_RATE_MS);
+    esp_err_t ret = i2c_master_cmd_begin(_port_num, cmd, 1000 / portTICK_PERIOD_MS);
     i2c_cmd_link_delete(cmd);
     return true;
 }
