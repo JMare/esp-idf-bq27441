@@ -47,6 +47,7 @@ bool bq27441Begin(i2c_port_t port_num)
 }
 
 // Configures the design capacity of the connected battery.
+// [2 Section 6.4.2.3.6]
 bool bq27441SetCapacity(uint16_t capacity)
 {
     // Write to STATE subclass (82) of BQ27441 extended memory.
@@ -60,6 +61,7 @@ bool bq27441SetCapacity(uint16_t capacity)
 }
 
 // Configures the design energy of the connected battery.
+// [2 Section 6.4.2.3.6]
 bool bq27441SetDesignEnergy(uint16_t energy)
 {
     // Write to STATE subclass (82) of BQ27441 extended memory.

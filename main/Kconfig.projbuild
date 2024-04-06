@@ -1,5 +1,10 @@
 menu "BQ27441 Test"
 
+config BQ27441_DESIGN_CAPACITY
+    int "Design Capacity (mAh) or 0 for uninitialized"
+    default 2000
+    range 0 8000
+
 config BQ27441_I2C_SCL
     int "SCL IO for BQ27441"
     default 22

@@ -96,7 +96,7 @@ bool bq27441Begin(i2c_port_t port_num);
 /**
   Configures the design capacity of the connected battery.
 
-@param capacity of battery (unsigned 16-bit value)
+@param capacity of battery (unsigned 16-bit value, mAh max 8000)
 @return true if capacity successfully set.
 */
 bool bq27441SetCapacity(uint16_t capacity);

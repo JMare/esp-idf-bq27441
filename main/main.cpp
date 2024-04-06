@@ -54,7 +54,9 @@ void app_main(void)
 
     bq27441Begin(I2C_PORT_NUM);
 
-    bq27441SetCapacity(2000);
+#if CONFIG_BQ27441_DESIGN_CAPACITY
+    bq27441SetCapacity(CONFIG_BQ27441_DESIGN_CAPACITY);
+#endif
 
     while(1)
     {
