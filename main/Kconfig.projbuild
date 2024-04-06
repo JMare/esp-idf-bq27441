@@ -1,0 +1,15 @@
+menu "BQ27441 Test"
+
+config BQ27441_I2C_SCL
+    int "SCL IO for BQ27441"
+    default 22
+
+config BQ27441_I2C_SDA
+    int "SDA IO for BQ27441"
+    default 21
+
+config BQ27441_I2C_FREQ
+    int "I2C master clock frequency"
+    default 400000
+
+endmenu
