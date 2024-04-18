@@ -1,6 +1,6 @@
 ESP-IDF BQ27441 Driver
 ====================
-Direct port of the arduino library to ESP-IDF v4.0
+Direct port of the arduino library to ESP-IDF v5
 
 The bus must be configured manually in your program and started before you call begin();
 
