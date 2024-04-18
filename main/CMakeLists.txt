@@ -5,4 +5,5 @@ idf_component_register(SRCS ${SOURCES}
 	INCLUDE_DIRS "."
   REQUIRES esp-idf-bq27441)
 
-target_compile_options(${COMPONENT_LIB} PRIVATE --std=c++17 -fdiagnostics-color=always)
+target_compile_options(${COMPONENT_LIB} PRIVATE -fdiagnostics-color=always)
+target_compile_features(${COMPONENT_LIB} PUBLIC cxx_std_17)
